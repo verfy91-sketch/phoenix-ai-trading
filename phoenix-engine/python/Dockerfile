@@ -31,4 +31,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 EXPOSE 8080
 
 # Start the application
-CMD ["python", "train.py", "--server"]
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
