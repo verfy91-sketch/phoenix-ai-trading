@@ -1,0 +1,4 @@
+[console_scripts]
+phoenix-fetch = historical_data_fetcher:main
+phoenix-train = train:main
+phoenix-trainer = main:app

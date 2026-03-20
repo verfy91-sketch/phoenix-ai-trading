@@ -1,0 +1,141 @@
+Metadata-Version: 2.4
+Name: phoenix-engine
+Version: 1.0.0
+Summary: Python bindings for Phoenix AI Trading Engine
+Home-page: https://github.com/your-username/phoenix-engine
+Author: Phoenix AI Trading System
+Author-email: support@phoenix-trading.ai
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Office/Business :: Financial :: Investment
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: joblib>=1.3.0
+Requires-Dist: onnx>=1.15.0
+Requires-Dist: onnxruntime>=1.16.0
+Requires-Dist: skl2onnx>=1.15.0
+Requires-Dist: supabase>=2.3.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: ccxt>=4.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: fastapi>=0.103.0
+Requires-Dist: uvicorn>=0.23.0
+Requires-Dist: pytest>=7.4.0
+Requires-Dist: pytest-asyncio>=0.21.0
+Requires-Dist: structlog>=23.1.0
+Requires-Dist: pyzmq>=25.1.1
+Requires-Dist: pycapnp>=2.0.2
+Requires-Dist: black>=23.7.0
+Requires-Dist: flake8>=6.0.0
+Requires-Dist: mypy>=1.5.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.7.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.5.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+"""
+Phoenix AI Trading System - Python Strategy Layer
+
+This package provides Python bindings for the ultra-low-latency C++ trading engine,
+allowing you to develop and run trading strategies in Python.
+
+## Building
+
+From the `phoenix-engine` directory:
+
+```bash
+mkdir build && cd build
+cmake .. -DBUILD_PYTHON_BINDINGS=ON
+cmake --build .
+```
+
+The Python module will be generated in `build/python/`. Add that directory to your 
+PYTHONPATH or copy it to your site-packages.
+
+## Usage
+
+```python
+import phoenix_engine as pe
+
+# Create engine
+engine = pe.Engine()
+engine.init()
+
+# Create a strategy
+from strategies.rsi_example import RSIStrategy
+strat = RSIStrategy("my_rsi", "BTC/USD", quantity=1)
+
+# Run with runner
+from strategies.runner import StrategyRunner
+runner = StrategyRunner(engine)
+runner.add_strategy(strat)
+runner.start()
+
+# Engine will run and call your strategy on each tick
+# Stop when done
+runner.stop()
+```
+
+## Testing
+
+```bash
+cd python
+pip install -r requirements.txt
+pytest tests/
+```
+
+## Benchmarking
+
+```bash
+cd python
+python benchmarks/bench_overhead.py
+```
+
+## Architecture
+
+The Python layer provides:
+
+- **Strategy Base Class**: Abstract base for implementing trading strategies
+- **Strategy Runner**: Manages multiple strategies and dispatches ticks
+- **Example Strategies**: Including RSI mean-reversion strategy
+- **Full Engine Access**: Complete access to C++ engine components
+
+## Features
+
+- Ultra-low-latency C++ core with Python strategy interface
+- Thread-safe operations with proper GIL management
+- Complete access to portfolio, risk management, and order management
+- Technical indicators (RSI) with minimal overhead
+- Comprehensive testing and benchmarking
+
+## Future Development
+
+Phase 3 will add:
+- IPC via ZeroMQ/Cap'n Proto for distributed deployment
+- gRPC backend for external connectivity
+- Advanced strategy composition and backtesting framework
