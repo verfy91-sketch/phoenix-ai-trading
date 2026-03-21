@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "phoenix-tradingsystem"
-  }
+    "default": "phoenix-trading-ai-new"
+  },
+  "targets": {},
+  "etags": {}
 }

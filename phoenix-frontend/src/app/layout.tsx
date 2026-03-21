@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Phoenix Trading System',
-  description: 'Advanced AI-powered trading platform',
+  description: 'Advanced AI-powered trading platform - v2.0',
   keywords: ['trading', 'AI', 'finance', 'stocks', 'crypto'],
   authors: [{ name: 'Phoenix Trading Team' }],
   viewport: 'width=device-width, initial-scale=1',
