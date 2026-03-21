@@ -59,8 +59,7 @@ class App {
       origin: [
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://phoenix-trading-ai.web.app",
-        "https://api.phoenix-trading.ai"
+        "https://phoenix-tradingsystem.web.app"
       ],
       credentials: true,
     }));

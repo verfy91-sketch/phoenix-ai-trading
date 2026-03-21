@@ -55,23 +55,23 @@ const requiredVariables: EnvironmentVariable[] = [
   },
   {
     name: 'REDIS_HOST',
-    required: true,
+    required: false,
     description: 'Redis server host',
   },
   {
     name: 'REDIS_PORT',
-    required: true,
+    required: false,
     description: 'Redis server port',
     validator: (value) => !isNaN(parseInt(value)) && parseInt(value) > 0,
   },
   {
     name: 'ENGINE_HOST',
-    required: true,
+    required: false,
     description: 'Trading engine host',
   },
   {
     name: 'ENGINE_PORT',
-    required: true,
+    required: false,
     description: 'Trading engine port',
     validator: (value) => !isNaN(parseInt(value)) && parseInt(value) > 0,
   },
