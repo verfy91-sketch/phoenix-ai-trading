@@ -6,8 +6,12 @@ class DatabaseService {
   private supabaseAdmin: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(config.supabase.url, config.supabase.anonKey);
-    this.supabaseAdmin = createClient(config.supabase.url, config.supabase.serviceRoleKey);
+    this.supabase = createClient(config.supabase.url, config.supabase.anonKey, {
+      auth: { persistSession: false }
+    });
+    this.supabaseAdmin = createClient(config.supabase.url, config.supabase.serviceRoleKey, {
+      auth: { persistSession: false }
+    });
   }
 
   // Public client (with RLS policies)
