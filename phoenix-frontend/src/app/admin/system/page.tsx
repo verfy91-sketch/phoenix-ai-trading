@@ -83,7 +83,7 @@ export default function AdminSystemPage() {
     c.key.includes('python_service') ||
     c.key.includes('newsapi') ||
     c.key.includes('alpha_vantage') ||
-    c.key.includes('reddit')
+    c.key.includes('quantconnect')
   );
 
   const renderConfigInput = (config: SystemConfig) => {
@@ -272,9 +272,9 @@ export default function AdminSystemPage() {
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-sm text-gray-500">Reddit API</dt>
+                      <dt className="text-sm text-gray-500">QuantConnect API</dt>
                       <dd className="text-sm font-medium">
-                        {configs.find(c => c.key === 'reddit_client_id')?.value ? 'Configured' : 'Not set'}
+                        {configs.find(c => c.key === 'quantconnect_api_key')?.value ? 'Configured' : 'Not set'}
                       </dd>
                     </div>
                   </dl>

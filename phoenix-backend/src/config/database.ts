@@ -27,7 +27,7 @@ class DatabaseService {
       password,
     });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
@@ -37,18 +37,18 @@ class DatabaseService {
       password,
     });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
   async signOut() {
     const { error } = await this.supabase.auth.signOut();
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
   }
 
   async getCurrentUser() {
     const { data: { user }, error } = await this.supabase.auth.getUser();
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return user;
   }
 
@@ -60,7 +60,7 @@ class DatabaseService {
       .eq('id', userId)
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
@@ -72,7 +72,7 @@ class DatabaseService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
@@ -84,7 +84,7 @@ class DatabaseService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data || [];
   }
 
@@ -99,7 +99,7 @@ class DatabaseService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
@@ -110,7 +110,7 @@ class DatabaseService {
       .eq('user_id', userId)
       .eq('id', keyId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
   }
 
   // Orders
@@ -121,7 +121,7 @@ class DatabaseService {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data || [];
   }
 
@@ -136,7 +136,7 @@ class DatabaseService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 
@@ -147,7 +147,7 @@ class DatabaseService {
       .select('id, email, role, created_at, last_login')
       .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data || [];
   }
 
@@ -159,7 +159,7 @@ class DatabaseService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error((error as Error).message);
     return data;
   }
 }

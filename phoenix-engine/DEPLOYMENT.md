@@ -77,8 +77,7 @@ ENCRYPTION_KEY=your-encryption-key-32-chars
 # External API Keys
 NEWSAPI_API_KEY=your-newsapi-key
 ALPHA_VANTAGE_API_KEY=your-alpha-vantage-key
-REDDIT_CLIENT_ID=your-reddit-client-id
-REDDIT_CLIENT_SECRET=your-reddit-client-secret
+QUANTCONNECT_API_KEY=your-quantconnect-api-key
 ```
 
 #### Deployment Options
@@ -133,8 +132,7 @@ Render automatically sets these from `render.yaml`:
 - SUPABASE_SERVICE_ROLE_KEY
 - NEWSAPI_API_KEY
 - ALPHA_VANTAGE_API_KEY
-- REDDIT_CLIENT_ID
-- REDDIT_CLIENT_SECRET
+- QUANTCONNECT_API_KEY
 - PORT=8080
 
 ### 5. Edge Functions Deployment

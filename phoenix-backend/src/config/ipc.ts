@@ -56,7 +56,7 @@ export class IpcClient extends EventEmitter {
       this.socket.on('error', (error) => {
         console.error('Socket error:', error);
         if (!this.connected) {
-          reject(new Error(`Failed to connect to engine: ${error.message}`));
+          reject(new Error(`Failed to connect to engine: ${(error as Error).message}`));
         }
       });
 

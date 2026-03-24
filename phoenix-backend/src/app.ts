@@ -22,6 +22,8 @@ import tradingRoutes from './modules/trading/trading.routes';
 import portfolioRoutes from './modules/portfolio/portfolio.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import aiFeaturesRoutes from './routes/ai/features';
+import strategiesRoutes from './routes/strategies';
+import aiPredictRoutes from './routes/ai/predict';
 
 // Load environment variables
 dotenv.config();
@@ -102,6 +104,8 @@ class App {
     this.app.use('/api/portfolio', portfolioRoutes);
     this.app.use('/api/admin', adminRoutes);
     this.app.use('/api/ai/features', aiFeaturesRoutes);
+    this.app.use('/api/strategies', strategiesRoutes);
+    this.app.use('/api/ai', aiPredictRoutes);
 
     // 404 handler
     this.app.use('*', (req, res) => {

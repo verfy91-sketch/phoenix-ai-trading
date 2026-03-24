@@ -45,15 +45,14 @@ BEGIN
     END IF;
 END $$;
 
--- Add AI training configuration to system_config
+-- Add genetic algorithm configuration to system_config
 INSERT INTO system_config (key, value, type, description) VALUES
-  ('auto_train_enabled', 'true', 'boolean', 'Enable automatic AI model retraining'),
-  ('auto_train_frequency_hours', '168', 'number', 'Frequency in hours for automatic retraining (168 = weekly)'),
-  ('auto_train_last_run', NULL, 'timestamp', 'Timestamp of last automatic training run'),
-  ('python_service_url', 'https://phoenix-trainer.onrender.com', 'string', 'URL of Python training service'),
-  ('newsapi_api_key', '3a2b1c4d5e6f7g8h9i0j1k2l3m4n5o6p', 'string', 'NewsAPI key for sentiment analysis'),
-  ('alpha_vantage_api_key', '7x8y9z0a1b2c3d4e5f6g7h8i9j0k1l2m', 'string', 'Alpha Vantage API key for economic data'),
-  ('quantconnect_api_key', '', 'string', 'QuantConnect API key for fetching community algorithms')
+  ('genetic_population_size', '50', 'number', 'Population size for genetic algorithm'),
+  ('genetic_generations', '20', 'number', 'Number of generations for evolution'),
+  ('genetic_mutation_rate', '0.1', 'number', 'Mutation rate for genetic algorithm (0.0-1.0)'),
+  ('genetic_crossover_rate', '0.8', 'number', 'Crossover rate for genetic algorithm (0.0-1.0)'),
+  ('genetic_elitism_count', '5', 'number', 'Number of elite individuals to keep each generation'),
+  ('genetic_tournament_size', '3', 'number', 'Tournament size for selection')
 ON CONFLICT (key) DO UPDATE SET
   value = EXCLUDED.value,
   type = EXCLUDED.type,

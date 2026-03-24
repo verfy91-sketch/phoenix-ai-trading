@@ -21,7 +21,7 @@ export function errorHandler(
 ): void {
   if (error instanceof AppError) {
     logger.error('Operational error:', {
-      message: error.message,
+      message: (error as Error).message,
       statusCode: error.statusCode,
       stack: error.stack,
       url: req.url,
@@ -36,7 +36,7 @@ export function errorHandler(
     });
   } else {
     logger.error('Unexpected error:', {
-      message: error.message,
+      message: (error as Error).message,
       stack: error.stack,
       url: req.url,
       method: req.method,
