@@ -34,7 +34,9 @@ export class AuthController {
     }
 
     // Hash password
+    console.log("🔐 Hashing password...");
     const hashedPassword = hashPassword(password);
+    console.log("✅ Password hashed successfully");
 
     console.log("🔍 Checking if user exists...");
 
