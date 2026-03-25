@@ -53,11 +53,11 @@ class RedisService {
   }
 
   private async ensureConnected(): Promise<boolean> {
-    return this.connected && this.client.status === 'ready';
+    return this.connected && this.client?.status === 'ready';
   }
 
   async set(key: string, value: string, ttl?: number): Promise<void> {
-    if (!(await this.ensureConnected())) {
+    if (!(await this.ensureConnected()) || !this.client) {
       console.warn('Redis not available - skipping set operation');
       return;
     }
@@ -74,7 +74,7 @@ class RedisService {
   }
 
   async get(key: string): Promise<string | null> {
-    if (!(await this.ensureConnected())) {
+    if (!(await this.ensureConnected()) || !this.client) {
       console.warn('Redis not available - returning null for get operation');
       return null;
     }
@@ -89,7 +89,7 @@ class RedisService {
   }
 
   async del(key: string): Promise<void> {
-    if (!(await this.ensureConnected())) {
+    if (!(await this.ensureConnected()) || !this.client) {
       console.warn('Redis not available - skipping del operation');
       return;
     }
@@ -102,7 +102,7 @@ class RedisService {
   }
 
   async exists(key: string): Promise<boolean> {
-    if (!(await this.ensureConnected())) {
+    if (!(await this.ensureConnected()) || !this.client) {
       console.warn('Redis not available - returning false for exists operation');
       return false;
     }
@@ -118,7 +118,7 @@ class RedisService {
 
   // Rate limiting
   async incrementRateLimit(identifier: string, windowMs: number, max: number): Promise<{ count: number; blocked: boolean }> {
-    if (!(await this.ensureConnected())) {
+    if (!(await this.ensureConnected()) || !this.client) {
       console.warn('Redis not available - skipping rate limiting');
       return { count: 0, blocked: false };
     }
@@ -227,7 +227,7 @@ class RedisService {
   }
 
   async disconnect(): Promise<void> {
-    if (this.connected) {
+    if (this.connected && this.client) {
       try {
         await this.client.quit();
       } catch (error) {
@@ -238,7 +238,7 @@ class RedisService {
 
   // Check if Redis is available
   isAvailable(): boolean {
-    return this.connected && this.client.status === 'ready';
+    return this.connected && this.client?.status === 'ready';
   }
 }
 

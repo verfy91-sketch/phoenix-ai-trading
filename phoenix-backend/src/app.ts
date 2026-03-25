@@ -94,37 +94,48 @@ class App {
 
     // Database test endpoint
     this.app.get('/db-test', async (req, res) => {
+      console.log("🔍 DB TEST START");
+
       try {
-        console.log("🔍 Testing database connection...");
+        console.log("🔍 Testing Supabase connection...");
         
-        // Test basic database connection
+        // Test basic database connection using Supabase
         const { data, error } = await databaseService.getPublicClient()
           .from('users')
-          .select('count')
+          .select('*')
           .limit(1);
         
         console.log("📊 DB test result:", { data, error });
-        
+
         if (error) {
           console.error('❌ Database test error:', error);
           res.status(500).json({ 
             ok: false, 
             error: error.message,
-            details: error
+            details: error,
+            code: 'SUPABASE_ERROR'
           });
-        } else {
-          console.log("✅ Database connection successful");
-          res.json({ 
-            ok: true, 
-            result: data,
-            message: "Database connection successful"
-          });
+          return;
         }
-      } catch (err) {
-        console.error('❌ DB test exception:', err);
-        res.status(500).json({ 
-          error: err instanceof Error ? err.message : 'Unknown database error',
-          stack: err instanceof Error ? err.stack : undefined
+
+        console.log("✅ Database connection successful");
+        res.json({ 
+          ok: true, 
+          result: data,
+          message: "Database connection successful",
+          code: 'SUCCESS'
+        });
+
+      } catch (err: any) {
+        console.error('❌ DB ERROR:', err);
+        console.error('❌ Error stack:', err.stack);
+
+        // Don't crash - return proper error response
+        res.status(500).json({
+          ok: false,
+          error: err.message || "Database error",
+          stack: err.stack,
+          code: 'DATABASE_EXCEPTION'
         });
       }
     });

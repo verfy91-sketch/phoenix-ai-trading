@@ -1,17 +1,42 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { config } from './env';
 
 class DatabaseService {
   private supabase: SupabaseClient;
   private supabaseAdmin: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(config.supabase.url, config.supabase.anonKey, {
-      auth: { persistSession: false }
-    });
-    this.supabaseAdmin = createClient(config.supabase.url, config.supabase.serviceRoleKey, {
-      auth: { persistSession: false }
-    });
+    // Validate required environment variables
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl) {
+      throw new Error('SUPABASE_URL environment variable is required');
+    }
+    if (!supabaseAnonKey) {
+      throw new Error('SUPABASE_ANON_KEY environment variable is required');
+    }
+    if (!supabaseServiceRoleKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+    }
+
+    console.log('🔍 Initializing Supabase clients...');
+    console.log('📋 Supabase URL:', supabaseUrl);
+
+    try {
+      this.supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false }
+      });
+      
+      this.supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+        auth: { persistSession: false }
+      });
+
+      console.log('✅ Supabase clients initialized successfully');
+    } catch (error) {
+      console.error('❌ Failed to initialize Supabase clients:', error);
+      throw new Error(`Supabase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   // Public client (with RLS policies)
