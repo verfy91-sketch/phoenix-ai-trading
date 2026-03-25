@@ -30,15 +30,28 @@ export class IpcClient extends EventEmitter {
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
   private reconnectDelay: number = 1000;
+  private enabled: boolean = true;
 
   constructor(
     private host: string = 'localhost',
     private port: number = 5555
   ) {
     super();
+    
+    // Check if trading engine should be enabled
+    this.enabled = process.env.ENABLE_TRADING_ENGINE !== 'false';
+    if (!this.enabled) {
+      console.log('Trading engine disabled - running without engine connection');
+      return;
+    }
   }
 
   async connect(): Promise<void> {
+    if (!this.enabled) {
+      console.log('Trading engine connection disabled');
+      return;
+    }
+
     return new Promise((resolve, reject) => {
       this.socket = createConnection(this.port, this.host);
 
@@ -54,7 +67,10 @@ export class IpcClient extends EventEmitter {
       });
 
       this.socket.on('error', (error) => {
-        console.error('Socket error:', error);
+        console.warn('Trading engine connection error (non-fatal):', error);
+        if (!this.enabled) {
+          return; // Don't reject if engine is disabled
+        }
         if (!this.connected) {
           reject(new Error(`Failed to connect to engine: ${(error as Error).message}`));
         }
@@ -63,28 +79,34 @@ export class IpcClient extends EventEmitter {
       this.socket.on('close', () => {
         console.log('Disconnected from engine');
         this.connected = false;
-        this.handleReconnect();
+        if (this.enabled) {
+          this.handleReconnect();
+        }
       });
 
       this.socket.on('timeout', () => {
-        console.error('Socket timeout');
-        this.socket?.destroy();
+        console.warn('Trading engine socket timeout (non-fatal)');
+        if (this.enabled) {
+          this.socket?.destroy();
+        }
       });
     });
   }
 
   private handleReconnect(): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
-      setTimeout(() => {
-        this.connect().catch(console.error);
-      }, this.reconnectDelay * this.reconnectAttempts);
-    } else {
-      console.error('Max reconnection attempts reached');
-      this.emit('maxReconnectAttemptsReached');
+    if (!this.enabled || this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.warn('Trading engine reconnection disabled or max attempts reached');
+      return;
     }
+    
+    this.reconnectAttempts++;
+    console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    
+    setTimeout(() => {
+      this.connect().catch((error) => {
+        console.warn('Trading engine reconnect failed (non-fatal):', error);
+      });
+    }, this.reconnectDelay * this.reconnectAttempts);
   }
 
   private handleData(data: Buffer): void {
