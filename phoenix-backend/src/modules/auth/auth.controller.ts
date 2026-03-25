@@ -55,6 +55,13 @@ export class AuthController {
 
     console.log("👤 Creating user...");
 
+    console.log("📤 INSERT PAYLOAD:", {
+      email,
+      password: hashedPassword,
+      first_name: firstName,
+      last_name: lastName,
+    });
+
     const { data, error } = await databaseService.getAdminClient()
       .from("users")
       .insert([
@@ -84,10 +91,14 @@ export class AuthController {
     });
 
   } catch (err: any) {
-    console.error("🚨 REGISTER CRASH:", err);
+    console.error("🚨 REGISTER CRASH FULL:", err);
+    console.error("🚨 MESSAGE:", err?.message);
+    console.error("🚨 STACK:", err?.stack);
+
     return res.status(500).json({
-      error: err.message,
-      stack: err.stack,
+      success: false,
+      error: err?.message || "Unknown error",
+      stack: err?.stack,
     });
   }
 }
