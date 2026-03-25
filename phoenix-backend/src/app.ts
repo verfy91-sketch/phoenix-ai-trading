@@ -171,8 +171,10 @@ class App {
     this.app.use('/api/ai/features', aiFeaturesRoutes);
     this.app.use('/api/strategies', strategiesRoutes);
     this.app.use('/api/ai', aiPredictRoutes);
+  }
 
-    // 404 handler with logging
+  private setupErrorHandling(): void {
+    // 404 handler with logging (must be before error handler)
     this.app.use('*', (req, res) => {
       console.log("❌ NO ROUTE MATCHED:", req.method, req.url);
       res.status(404).json({
@@ -181,9 +183,8 @@ class App {
         path: req.originalUrl,
       });
     });
-  }
 
-  private setupErrorHandling(): void {
+    // Global error handler (must be last)
     this.app.use(errorHandler);
   }
 

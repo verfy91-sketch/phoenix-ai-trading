@@ -11,13 +11,13 @@ export function generateKey(): string {
 
 export function encrypt(text: string, key: string): { encrypted: string; iv: string; tag: string } {
   const iv = crypto.randomBytes(ivLength);
-  const cipher = crypto.createCipher(algorithm, key, iv);
-  
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key, 'hex'), iv);
+
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   const tag = cipher.getAuthTag();
-  
+
   return {
     encrypted,
     iv: iv.toString('hex'),
@@ -27,13 +27,13 @@ export function encrypt(text: string, key: string): { encrypted: string; iv: str
 
 export function decrypt(encryptedData: { encrypted: string; iv: string; tag: string }, key: string): string {
   const { encrypted, iv, tag } = encryptedData;
-  const decipher = crypto.createDecipher(algorithm, key, Buffer.from(iv, 'hex'));
-  
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key, 'hex'), Buffer.from(iv, 'hex'));
+
   decipher.setAuthTag(Buffer.from(tag, 'hex'));
-  
+
   let decrypted = decipher.update(encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
-  
+
   return decrypted;
 }
 

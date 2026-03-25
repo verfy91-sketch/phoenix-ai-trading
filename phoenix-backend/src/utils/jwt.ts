@@ -10,7 +10,7 @@ export interface JWTPayload {
 }
 
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, config.jwt.secret);
+  return jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn } as jwt.SignOptions);
 }
 
 export function verifyToken(token: string): JWTPayload {
@@ -26,6 +26,6 @@ export function extractTokenFromHeader(authHeader: string | undefined): string |
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-  
+
   return authHeader.substring(7);
 }
