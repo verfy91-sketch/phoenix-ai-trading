@@ -20,7 +20,7 @@ const loginSchema = z.object({
 });
 
 export class AuthController {
-  async register(req: Request, res: Response): Promise<void> {
+  async register(req: Request, res: Response): Promise<Response> {
     try {
       console.log("🔍 Register request received");
       console.log("📋 Request body:", req.body);
@@ -53,29 +53,56 @@ export class AuthController {
       console.log("👤 Creating user in database...");
       const { data: user, error } = await databaseService.getAdminClient()
         .from('users')
-        .insert({
-          email,
-          password: hashedPassword,
-          first_name: firstName,
-          last_name: lastName,
-          role: 'user',
-          created_at: new Date().toISOString(),
-          last_login: new Date().toISOString(),
-        })
+        .insert([
+          {
+            email,
+            password: hashedPassword,
+            first_name: firstName,
+            last_name: lastName,
+            role: 'user',
+            created_at: new Date().toISOString(),
+            last_login: new Date().toISOString(),
+          }
+        ])
         .select()
         .single();
 
-      console.log("📊 Database result:", { user, error });
+      console.log("✅ Insert result data:", user);
+      console.log("❌ Insert error:", error);
 
       if (error) {
-        console.error('❌ Database error during user creation:', error);
-        throw new AppError(`Failed to create user: ${error.message}`, 500);
+        console.error("❌ Supabase error during user creation:", error);
+        console.error("❌ Error details:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        
+        // Return proper JSON response instead of throwing
+        return res.status(400).json({
+          success: false,
+          error: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          type: 'SupabaseError'
+        });
+      }
+
+      if (!user) {
+        console.error("❌ No user data returned from insert");
+        return res.status(500).json({
+          success: false,
+          error: "Failed to create user - no data returned",
+          type: 'NoDataError'
+        });
       }
 
       console.log("✅ User created successfully:", user);
       logger.info('User registered successfully', { userId: user.id, email });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: 'User registered successfully',
         data: {
@@ -87,30 +114,44 @@ export class AuthController {
         },
       });
     } catch (error) {
-      console.error('❌ REGISTRATION ERROR:', error);
-      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack available');
+      console.error('🚨 REGISTER ERROR:', error);
+      console.error('🚨 ERROR TYPE:', typeof error);
+      console.error('🚨 ERROR MESSAGE:', error instanceof Error ? error.message : 'No message');
+      console.error('🚨 ERROR STACK:', error instanceof Error ? error.stack : 'No stack');
       
+      // Check if it's an AppError (operational error)
       if (error instanceof AppError) {
-        throw error;
+        console.error('🚨 APP ERROR:', error.message, error.statusCode);
+        return res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+          type: 'AppError',
+          statusCode: error.statusCode
+        });
       }
       
       // Handle other errors with detailed logging
       if (error instanceof Error) {
-        console.error('❌ Registration failed with error:', {
+        console.error('🚨 Registration failed with error:', {
           message: error.message,
           stack: error.stack,
+          name: error.name,
           body: req.body
         });
-        res.status(500).json({ 
+        return res.status(500).json({ 
+          success: false,
           error: error.message,
           type: 'RegistrationError',
+          name: error.name,
           timestamp: new Date().toISOString()
         });
       } else {
-        console.error('❌ Unknown registration error:', error);
-        res.status(500).json({ 
+        console.error('🚨 Unknown registration error:', error);
+        return res.status(500).json({ 
+          success: false,
           error: 'Unknown registration error occurred',
           type: 'UnknownError',
+          details: error,
           timestamp: new Date().toISOString()
         });
       }
