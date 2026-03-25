@@ -147,8 +147,11 @@ class App {
     });
 
     // API routes
+    console.log("🔍 MOUNTING ROUTES...");
     this.app.use('/auth', authRoutes);  // For frontend compatibility
+    console.log("✅ /auth routes mounted");
     this.app.use('/api/auth', authRoutes);  // For API calls
+    console.log("✅ /api/auth routes mounted");
     this.app.use('/api/users', usersRoutes);
     this.app.use('/api/trading', tradingRoutes);
     this.app.use('/api/portfolio', portfolioRoutes);
