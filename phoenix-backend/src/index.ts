@@ -1,5 +1,7 @@
 import App from './app';
 
+console.log("🚀 NEW BUILD DEPLOYED");
+
 // Global error logging - catch ALL errors
 process.on("uncaughtException", (err: Error) => {
   console.error("🔥 UNCAUGHT EXCEPTION:", err);

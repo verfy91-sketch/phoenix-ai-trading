@@ -14,11 +14,13 @@ export class AppError extends Error {
 }
 
 export function errorHandler(
-  error: Error,
+  error: any,
   req: any,
   res: any,
   next: any
 ): void {
+  console.error("🔥 GLOBAL ERROR:", error);
+
   if (error instanceof AppError) {
     logger.error('Operational error:', {
       message: (error as Error).message,
@@ -36,8 +38,8 @@ export function errorHandler(
     });
   } else {
     logger.error('Unexpected error:', {
-      message: (error as Error).message,
-      stack: error.stack,
+      message: error?.message || 'Unknown error',
+      stack: error?.stack,
       url: req.url,
       method: req.method,
       ip: req.ip,
@@ -45,8 +47,8 @@ export function errorHandler(
 
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
-      ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+      error: error?.message || 'Unknown error',
+      stack: error?.stack,
     });
   }
 }

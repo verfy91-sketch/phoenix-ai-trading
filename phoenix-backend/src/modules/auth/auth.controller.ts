@@ -21,6 +21,11 @@ const loginSchema = z.object({
 
 export class AuthController {
   async register(req: Request, res: Response): Promise<Response> {
+  console.log("✅ REGISTER CONTROLLER HIT");
+  
+  // Force a test crash to verify error handling
+  throw new Error("TEST ERROR");
+
   try {
     console.log("🔍 Register request received");
     console.log("� Body:", req.body);
@@ -48,7 +53,7 @@ export class AuthController {
 
     if (checkError) {
       console.error("❌ Check error:", checkError);
-      return res.status(500).json({ error: checkError.message });
+      return res.status(500).json({ error: checkError?.message || 'Database check error' });
     }
 
     if (existingUser) {
@@ -82,7 +87,7 @@ export class AuthController {
 
     if (error) {
       return res.status(400).json({
-        error: error.message,
+        error: error?.message || 'Database insert error',
         details: error,
       });
     }
