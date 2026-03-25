@@ -148,6 +148,13 @@ class App {
 
     // API routes
     console.log("🔍 MOUNTING ROUTES...");
+    
+    // Add debug middleware to track all requests
+    this.app.use((req, res, next) => {
+      console.log("🌐 REQUEST:", req.method, req.url);
+      next();
+    });
+    
     this.app.use('/auth', authRoutes);  // For frontend compatibility
     console.log("✅ /auth routes mounted");
     this.app.use('/api/auth', authRoutes);  // For API calls
