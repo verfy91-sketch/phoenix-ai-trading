@@ -130,10 +130,16 @@ class App {
         port,
       });
 
-      // Update active connections in Redis
+      // Update active connections in Redis (non-fatal)
       setInterval(async () => {
-        const activeConnections = 1; // Will be updated when WebSocket is implemented
-        await redisService.set('active_connections', activeConnections.toString());
+        try {
+          if (redisService.isAvailable()) {
+            const activeConnections = 1; // Will be updated when WebSocket is implemented
+            await redisService.set('active_connections', activeConnections.toString());
+          }
+        } catch (error) {
+          console.warn('Redis update error (non-fatal):', error);
+        }
       }, 30000); // Every 30 seconds
     });
 

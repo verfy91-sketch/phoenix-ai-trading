@@ -21,26 +21,37 @@ export const rateLimiter = rateLimit({
   },
   handler: async (req: any, res: any) => {
     const identifier = req.user?.userId || req.ip;
-    const result = await redisService.incrementRateLimit(
-      identifier,
-      config.rateLimit.windowMs,
-      config.rateLimit.max
-    );
-
-    res.set({
-      'X-RateLimit-Limit': config.rateLimit.max,
-      'X-RateLimit-Remaining': Math.max(0, config.rateLimit.max - result.count),
-      'X-RateLimit-Reset': new Date(Date.now() + config.rateLimit.windowMs).toISOString(),
-    });
-
-    if (result.blocked) {
-      logger.warn('Rate limit exceeded', {
+    
+    try {
+      const result = await redisService.incrementRateLimit(
         identifier,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        url: req.url,
+        config.rateLimit.windowMs,
+        config.rateLimit.max
+      );
+
+      res.set({
+        'X-RateLimit-Limit': config.rateLimit.max,
+        'X-RateLimit-Remaining': Math.max(0, config.rateLimit.max - result.count),
+        'X-RateLimit-Reset': new Date(Date.now() + config.rateLimit.windowMs).toISOString(),
       });
 
+      if (result.blocked) {
+        logger.warn('Rate limit exceeded', {
+          identifier,
+          ip: req.ip,
+          userAgent: req.get('User-Agent'),
+          url: req.url,
+        });
+
+        return res.status(429).json({
+          success: false,
+          error: 'Rate limit exceeded. Please try again later.',
+          retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
+        });
+      }
+    } catch (error) {
+      console.warn('Rate limiter error (non-fatal):', error);
+      // If Redis fails, still respond with rate limit exceeded but don't crash
       return res.status(429).json({
         success: false,
         error: 'Rate limit exceeded. Please try again later.',
