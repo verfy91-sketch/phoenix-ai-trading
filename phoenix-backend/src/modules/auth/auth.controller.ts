@@ -22,9 +22,6 @@ const loginSchema = z.object({
 export class AuthController {
   async register(req: Request, res: Response): Promise<Response> {
   console.log("✅ REGISTER CONTROLLER HIT");
-  
-  // Force a test crash to verify error handling
-  throw new Error("TEST ERROR");
 
   try {
     console.log("🔍 Register request received");
@@ -101,11 +98,14 @@ export class AuthController {
     console.error("🚨 REGISTER CRASH FULL:", err);
     console.error("🚨 MESSAGE:", err?.message);
     console.error("🚨 STACK:", err?.stack);
+    console.error("🚨 TYPE:", typeof err);
 
+    // Return the actual error, not generic
     return res.status(500).json({
       success: false,
       error: err?.message || "Unknown error",
       stack: err?.stack,
+      type: typeof err,
     });
   }
 }
