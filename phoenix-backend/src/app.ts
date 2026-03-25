@@ -147,7 +147,8 @@ class App {
     });
 
     // API routes
-    this.app.use('/api/auth', authRoutes);
+    this.app.use('/auth', authRoutes);  // For frontend compatibility
+    this.app.use('/api/auth', authRoutes);  // For API calls
     this.app.use('/api/users', usersRoutes);
     this.app.use('/api/trading', tradingRoutes);
     this.app.use('/api/portfolio', portfolioRoutes);
