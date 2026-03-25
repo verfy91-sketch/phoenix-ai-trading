@@ -162,8 +162,6 @@ class App {
       next();
     });
     
-    this.app.use('/auth', authRoutes);  // For frontend compatibility
-    console.log("✅ /auth routes mounted");
     this.app.use('/api/auth', authRoutes);  // For API calls
     console.log("✅ /api/auth routes mounted");
     this.app.use('/api/users', usersRoutes);
