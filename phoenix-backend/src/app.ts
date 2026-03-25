@@ -169,13 +169,16 @@ class App {
   }
 
   public async start(): Promise<void> {
-    const PORT = Number(process.env.PORT);
+    const PORT = process.env.PORT;
+
+    console.log("🔍 ENV PORT:", process.env.PORT);
 
     if (!PORT) {
       throw new Error("PORT environment variable is required");
     }
     
     this.server.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
       logger.info(`Phoenix Backend Server started on port ${PORT}`, {
         environment: config.app.env,
         nodeVersion: process.version,
