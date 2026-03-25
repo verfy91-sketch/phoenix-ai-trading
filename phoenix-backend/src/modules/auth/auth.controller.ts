@@ -110,19 +110,44 @@ export class AuthController {
   }
 }
 
-  async login(req: Request, res: Response): Promise<void> {
+  async login(req: Request, res: Response): Promise<Response> {
     try {
-      const { email, password } = loginSchema.parse(req.body);
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields",
+        });
+      }
 
       // Get user from database
-      const { data: user } = await databaseService.getPublicClient()
+      const { data: user, error: userError } = await databaseService.getPublicClient()
         .from('users')
         .select('*')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
-      if (!user || !verifyPassword(password, user.password)) {
-        throw new AppError('Invalid email or password', 401);
+      if (userError) {
+        return res.status(500).json({
+          success: false,
+          error: userError?.message || 'Database lookup error',
+        });
+      }
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid email or password",
+        });
+      }
+
+      const passwordValid = verifyPassword(password, user.password);
+      if (!passwordValid) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid email or password",
+        });
       }
 
       // Update last login
@@ -140,7 +165,7 @@ export class AuthController {
 
       logger.info('User logged in successfully', { userId: user.id, email });
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Login successful',
         data: {
@@ -154,8 +179,12 @@ export class AuthController {
           },
         },
       });
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        error: error?.message || "Login error",
+        stack: error?.stack,
+      });
     }
   }
 
