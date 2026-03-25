@@ -1,6 +1,6 @@
 import App from './app';
 
-console.log("🚀 NEW BUILD DEPLOYED");
+console.log("🚀 NEW BUILD DEPLOYED - 7ade935");
 
 // Global error logging - catch ALL errors
 process.on("uncaughtException", (err: Error) => {
