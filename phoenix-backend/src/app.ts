@@ -149,6 +149,13 @@ class App {
     // API routes
     console.log("🔍 MOUNTING ROUTES...");
     
+    // Add direct redirect for /auth to /api/auth
+    this.app.use('/auth', (req, res, next) => {
+      console.log("🔄 REDIRECTING /auth to /api/auth:", req.method, req.url);
+      req.url = req.url.replace(/^\/auth/, '/api/auth');
+      next();
+    });
+    
     // Add debug middleware to track all requests
     this.app.use((req, res, next) => {
       console.log("🌐 REQUEST:", req.method, req.url);
