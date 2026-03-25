@@ -54,7 +54,8 @@ export class AuthController {
         .single();
 
       if (error) {
-        throw new AppError('Failed to create user', 500);
+        console.error('Database error during user creation:', error);
+        throw new AppError(`Failed to create user: ${error.message}`, 500);
       }
 
       logger.info('User registered successfully', { userId: user.id, email });
@@ -71,7 +72,32 @@ export class AuthController {
         },
       });
     } catch (error) {
-      throw error;
+      console.error('Registration error:', error);
+      
+      if (error instanceof AppError) {
+        throw error;
+      }
+      
+      // Handle other errors with detailed logging
+      if (error instanceof Error) {
+        console.error('Registration failed with error:', {
+          message: error.message,
+          stack: error.stack,
+          body: req.body
+        });
+        res.status(500).json({ 
+          error: error.message,
+          type: 'RegistrationError',
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.error('Unknown registration error:', error);
+        res.status(500).json({ 
+          error: 'Unknown registration error occurred',
+          type: 'UnknownError',
+          timestamp: new Date().toISOString()
+        });
+      }
     }
   }
 
