@@ -7,12 +7,7 @@ import { z } from 'zod';
 const router = Router();
 
 // Public routes
-router.post('/register', validateRequest(z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-})), register);
+router.post('/register', register);
 
 router.post('/login', validateRequest(z.object({
   email: z.string().email(),

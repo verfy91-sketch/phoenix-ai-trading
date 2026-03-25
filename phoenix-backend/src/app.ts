@@ -82,6 +82,12 @@ class App {
   }
 
   private setupRoutes(): void {
+    // Route-level logging - see ALL incoming requests
+    this.app.use((req, res, next) => {
+      console.log("🌐 INCOMING:", req.method, req.url);
+      next();
+    });
+
     // Health check endpoint (no rate limiting)
     this.app.get('/health', (req, res) => {
       res.json({
@@ -150,8 +156,9 @@ class App {
     this.app.use('/api/strategies', strategiesRoutes);
     this.app.use('/api/ai', aiPredictRoutes);
 
-    // 404 handler
+    // 404 handler with logging
     this.app.use('*', (req, res) => {
+      console.log("❌ NO ROUTE MATCHED:", req.method, req.url);
       res.status(404).json({
         success: false,
         error: 'Endpoint not found',
