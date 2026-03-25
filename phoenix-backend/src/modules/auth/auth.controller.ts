@@ -21,142 +21,73 @@ const loginSchema = z.object({
 
 export class AuthController {
   async register(req: Request, res: Response): Promise<Response> {
-    try {
-      console.log("🔍 Register request received");
-      console.log("📋 Request body:", req.body);
+  try {
+    console.log("🔍 Register request received");
+    console.log("� Body:", req.body);
 
-      const { email, password, firstName, lastName } = registerSchema.parse(req.body);
-      
-      console.log("✅ Parsed data:", { email, firstName, lastName });
+    const { email, password, firstName, lastName } = req.body;
 
-      // Check if user already exists
-      console.log("🔍 Checking if user exists...");
-      const existingUser = await databaseService.getPublicClient()
-        .from('users')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      console.log("📊 Existing user check result:", existingUser);
-
-      if (existingUser.data) {
-        console.log("⚠️ User already exists:", existingUser.data);
-        throw new AppError('User with this email already exists', 409);
-      }
-
-      // Hash password
-      console.log("🔐 Hashing password...");
-      const hashedPassword = hashPassword(password);
-      console.log("✅ Password hashed");
-
-      // Create user
-      console.log("👤 Creating user in database...");
-      const { data: user, error } = await databaseService.getAdminClient()
-        .from('users')
-        .insert([
-          {
-            email,
-            password: hashedPassword,
-            first_name: firstName,
-            last_name: lastName,
-            role: 'user',
-            created_at: new Date().toISOString(),
-            last_login: new Date().toISOString(),
-          }
-        ])
-        .select()
-        .single();
-
-      console.log("✅ Insert result data:", user);
-      console.log("❌ Insert error:", error);
-
-      if (error) {
-        console.error("❌ Supabase error during user creation:", error);
-        console.error("❌ Error details:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        
-        // Return proper JSON response instead of throwing
-        return res.status(400).json({
-          success: false,
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          type: 'SupabaseError'
-        });
-      }
-
-      if (!user) {
-        console.error("❌ No user data returned from insert");
-        return res.status(500).json({
-          success: false,
-          error: "Failed to create user - no data returned",
-          type: 'NoDataError'
-        });
-      }
-
-      console.log("✅ User created successfully:", user);
-      logger.info('User registered successfully', { userId: user.id, email });
-
-      return res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        data: {
-          id: user.id,
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
-        },
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Missing required fields",
       });
-    } catch (error) {
-      console.error('🚨 REGISTER ERROR:', error);
-      console.error('🚨 ERROR TYPE:', typeof error);
-      console.error('🚨 ERROR MESSAGE:', error instanceof Error ? error.message : 'No message');
-      console.error('🚨 ERROR STACK:', error instanceof Error ? error.stack : 'No stack');
-      
-      // Check if it's an AppError (operational error)
-      if (error instanceof AppError) {
-        console.error('🚨 APP ERROR:', error.message, error.statusCode);
-        return res.status(error.statusCode).json({
-          success: false,
-          error: error.message,
-          type: 'AppError',
-          statusCode: error.statusCode
-        });
-      }
-      
-      // Handle other errors with detailed logging
-      if (error instanceof Error) {
-        console.error('🚨 Registration failed with error:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
-          body: req.body
-        });
-        return res.status(500).json({ 
-          success: false,
-          error: error.message,
-          type: 'RegistrationError',
-          name: error.name,
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        console.error('🚨 Unknown registration error:', error);
-        return res.status(500).json({ 
-          success: false,
-          error: 'Unknown registration error occurred',
-          type: 'UnknownError',
-          details: error,
-          timestamp: new Date().toISOString()
-        });
-      }
     }
+
+    console.log("🔍 Checking if user exists...");
+
+    const { data: existingUser, error: checkError } = await databaseService.getPublicClient()
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error("❌ Check error:", checkError);
+      return res.status(500).json({ error: checkError.message });
+    }
+
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    console.log("👤 Creating user...");
+
+    const { data, error } = await databaseService.getAdminClient()
+      .from("users")
+      .insert([
+        {
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+        },
+      ])
+      .select()
+      .single();
+
+    console.log("📦 Insert data:", data);
+    console.log("❌ Insert error:", error);
+
+    if (error) {
+      return res.status(400).json({
+        error: error.message,
+        details: error,
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: data,
+    });
+
+  } catch (err: any) {
+    console.error("🚨 REGISTER CRASH:", err);
+    return res.status(500).json({
+      error: err.message,
+      stack: err.stack,
+    });
   }
+}
 
   async login(req: Request, res: Response): Promise<void> {
     try {
