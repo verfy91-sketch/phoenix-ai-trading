@@ -33,6 +33,9 @@ export class AuthController {
       });
     }
 
+    // Hash password
+    const hashedPassword = hashPassword(password);
+
     console.log("🔍 Checking if user exists...");
 
     const { data: existingUser, error: checkError } = await databaseService.getPublicClient()
@@ -57,7 +60,7 @@ export class AuthController {
       .insert([
         {
           email,
-          password,
+          password: hashedPassword,
           first_name: firstName,
           last_name: lastName,
         },
