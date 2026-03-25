@@ -92,6 +92,43 @@ class App {
       });
     });
 
+    // Database test endpoint
+    this.app.get('/db-test', async (req, res) => {
+      try {
+        console.log("🔍 Testing database connection...");
+        
+        // Test basic database connection
+        const { data, error } = await databaseService.getPublicClient()
+          .from('users')
+          .select('count')
+          .limit(1);
+        
+        console.log("📊 DB test result:", { data, error });
+        
+        if (error) {
+          console.error('❌ Database test error:', error);
+          res.status(500).json({ 
+            ok: false, 
+            error: error.message,
+            details: error
+          });
+        } else {
+          console.log("✅ Database connection successful");
+          res.json({ 
+            ok: true, 
+            result: data,
+            message: "Database connection successful"
+          });
+        }
+      } catch (err) {
+        console.error('❌ DB test exception:', err);
+        res.status(500).json({ 
+          error: err instanceof Error ? err.message : 'Unknown database error',
+          stack: err instanceof Error ? err.stack : undefined
+        });
+      }
+    });
+
     // API routes
     this.app.use('/api/auth', authRoutes);
     this.app.use('/api/users', usersRoutes);

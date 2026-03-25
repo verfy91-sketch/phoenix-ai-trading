@@ -22,23 +22,35 @@ const loginSchema = z.object({
 export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
+      console.log("🔍 Register request received");
+      console.log("📋 Request body:", req.body);
+
       const { email, password, firstName, lastName } = registerSchema.parse(req.body);
+      
+      console.log("✅ Parsed data:", { email, firstName, lastName });
 
       // Check if user already exists
+      console.log("🔍 Checking if user exists...");
       const existingUser = await databaseService.getPublicClient()
         .from('users')
         .select('id')
         .eq('email', email)
         .single();
 
+      console.log("📊 Existing user check result:", existingUser);
+
       if (existingUser.data) {
+        console.log("⚠️ User already exists:", existingUser.data);
         throw new AppError('User with this email already exists', 409);
       }
 
       // Hash password
+      console.log("🔐 Hashing password...");
       const hashedPassword = hashPassword(password);
+      console.log("✅ Password hashed");
 
       // Create user
+      console.log("👤 Creating user in database...");
       const { data: user, error } = await databaseService.getAdminClient()
         .from('users')
         .insert({
@@ -53,11 +65,14 @@ export class AuthController {
         .select()
         .single();
 
+      console.log("📊 Database result:", { user, error });
+
       if (error) {
-        console.error('Database error during user creation:', error);
+        console.error('❌ Database error during user creation:', error);
         throw new AppError(`Failed to create user: ${error.message}`, 500);
       }
 
+      console.log("✅ User created successfully:", user);
       logger.info('User registered successfully', { userId: user.id, email });
 
       res.status(201).json({
@@ -72,7 +87,8 @@ export class AuthController {
         },
       });
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ REGISTRATION ERROR:', error);
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack available');
       
       if (error instanceof AppError) {
         throw error;
@@ -80,7 +96,7 @@ export class AuthController {
       
       // Handle other errors with detailed logging
       if (error instanceof Error) {
-        console.error('Registration failed with error:', {
+        console.error('❌ Registration failed with error:', {
           message: error.message,
           stack: error.stack,
           body: req.body
@@ -91,7 +107,7 @@ export class AuthController {
           timestamp: new Date().toISOString()
         });
       } else {
-        console.error('Unknown registration error:', error);
+        console.error('❌ Unknown registration error:', error);
         res.status(500).json({ 
           error: 'Unknown registration error occurred',
           type: 'UnknownError',
