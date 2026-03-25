@@ -32,20 +32,20 @@ export class EnsembleModel {
       const { data: models, error } = await supabase
         .from('ai_models')
         .select('*')
-        .eq('status', 'active')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error loading models:', error);
+        console.warn("AI models not available (table missing or empty). Continuing without AI features.");
         return;
       }
 
       for (const model of models || []) {
         this.models.set(model.market, model);
-        console.log(`Loaded model for ${model.market}: ${model.model_name} (F1: ${model.f1_score})`);
+        console.log(`Loaded model for ${model.market}: ${model.name} (Accuracy: ${model.accuracy || 'N/A'})`);
       }
     } catch (error) {
-      console.error('Error initializing models:', error);
+      console.warn("AI models initialization failed. Continuing without AI features:", error);
     }
   }
 
@@ -124,17 +124,17 @@ export class EnsembleModel {
       const { data: models, error } = await supabase
         .from('ai_models')
         .select('*')
-        .eq('status', 'active')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching models:', error);
+        console.warn("Failed to fetch available models:", error);
         return [];
       }
 
       return models || [];
     } catch (error) {
-      console.error('Error getting available models:', error);
+      console.error("Error in getAvailableModels:", error);
       return [];
     }
   }
