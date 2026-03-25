@@ -121,7 +121,7 @@ class App {
   }
 
   public async start(): Promise<void> {
-    const port = config.app.port;
+    const port = process.env.PORT || config.app.port;
     
     this.server.listen(port, () => {
       logger.info(`Phoenix Backend Server started on port ${port}`, {
