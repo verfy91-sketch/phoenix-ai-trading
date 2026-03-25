@@ -2,10 +2,18 @@ import Redis from 'ioredis';
 import { config } from './env';
 
 class RedisService {
-  private client: Redis;
+  private client: Redis | null = null;
   private connected: boolean = false;
 
   constructor() {
+    // Check if Redis should be enabled
+    const redisEnabled = process.env.REDIS_ENABLED === 'true';
+    if (!redisEnabled) {
+      console.log('Redis disabled - running without Redis');
+      this.connected = false;
+      return;
+    }
+
     this.client = new Redis({
       host: config.redis.host,
       port: config.redis.port,

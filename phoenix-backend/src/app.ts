@@ -158,13 +158,17 @@ class App {
   }
 
   public async start(): Promise<void> {
-    const port = parseInt(process.env.PORT || config.app.port.toString());
+    const PORT = Number(process.env.PORT);
+
+    if (!PORT) {
+      throw new Error("PORT environment variable is required");
+    }
     
-    this.server.listen(port, () => {
-      logger.info(`Phoenix Backend Server started on port ${port}`, {
+    this.server.listen(PORT, "0.0.0.0", () => {
+      logger.info(`Phoenix Backend Server started on port ${PORT}`, {
         environment: config.app.env,
         nodeVersion: process.version,
-        port,
+        port: PORT,
       });
 
       // Update active connections in Redis (non-fatal)

@@ -39,7 +39,7 @@ export class IpcClient extends EventEmitter {
     super();
     
     // Check if trading engine should be enabled
-    this.enabled = process.env.ENABLE_TRADING_ENGINE !== 'false';
+    this.enabled = process.env.ENABLE_TRADING_ENGINE === 'true';
     if (!this.enabled) {
       console.log('Trading engine disabled - running without engine connection');
       return;
