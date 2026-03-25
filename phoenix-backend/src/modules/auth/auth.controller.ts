@@ -236,7 +236,7 @@ export class AuthController {
 
 export const authController = new AuthController();
 
-export const register = asyncHandler(authController.register.bind(authController));
+export const register = authController.register.bind(authController);
 export const login = asyncHandler(authController.login.bind(authController));
 export const logout = asyncHandler(authController.logout.bind(authController));
 export const refreshToken = asyncHandler(authController.refreshToken.bind(authController));
